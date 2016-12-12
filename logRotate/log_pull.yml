@@ -1,0 +1,18 @@
+---
+- hosts: test
+  tasks:
+    - shell: 'date +%Y%m%d'
+      register: current_run_timestamp
+    - name: copy to another folder
+      shell: rsync -avz /var/www/eq_unicredit/shared/log/ /tmp/eq_logs/
+    - name: archive files on SUM
+      shell: tar -zcvf /tmp/Logs_{{current_run_timestamp.stdout}}.tar.gz /tmp/eq_logs
+    - name: download archive from SUM
+      fetch: src=/tmp/Logs_{{current_run_timestamp.stdout}}.tar.gz dest=/home/ansibl/test
+    - name: del archive from SUM
+      shell: rm /tmp/Logs_{{current_run_timestamp.stdout}}.tar.gz
+    - name: del copies from SUM
+      shell: rm -rf /tmp/eq_logs/
+    - name: clear logs folder from SUM
+      shell: rm -rf /var/www/eq_unicredit/shared/log/*
+
